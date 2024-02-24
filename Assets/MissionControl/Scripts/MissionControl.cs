@@ -27,6 +27,9 @@ public class MissionControl : MonoBehaviour {
     public Material BorderMaterial;
     public Material VignetteMaterial;
 
+    public SpriteRenderer GoldenSlot;
+    public Sprite[] GoldenSprites;
+
     // Logging info
     private static int moduleIdCounter = 1;
     private int moduleId;
@@ -51,6 +54,7 @@ public class MissionControl : MonoBehaviour {
      * 6: For No Eyes Only
      * 7: Lost To Time
      * 8: Flyer's Manual Curse / Flyer's Alternative Manual Curse
+     * 9: The Mountain / The Mountain B-Side
      */
 
     // Mission specific variables
@@ -105,6 +109,9 @@ public class MissionControl : MonoBehaviour {
     private readonly float BORDER_GREEN = 0.6640625f;
     private readonly float BUTTON_GREEN = 0.75f;
     private readonly float BUTTON_BLUE = 0.5f;
+
+    private bool goldenPresent = false;
+    private bool goldenActive = false;
 
     private CameraPostProcess postProcess = null;
     private Transform cameraPos = null;
@@ -194,6 +201,15 @@ public class MissionControl : MonoBehaviour {
             Debug.LogFormat("[Mission Control #{0}] Found mission: \"Flyer's Manual Curse\". Mission ran can be an ALT version.", moduleId);
             missionFound = true;
             mode = 8;
+            break;
+        case "mod_theBombsBlanMade_mountain": //The Mountain
+        case "mod_theBombsBlanMade_mountainBside": //The Mountain B-Side
+            Debug.LogFormat("[Mission Control #{0}] Found mission: \"The Mountain{1}\".", moduleId, mission.Contains("Bside") ? " B-Side" : "");
+            missionFound = true;
+            mode = 9;
+            ButtonTransform.localEulerAngles = new Vector3(0f, 0f, 270f);
+            goldenPresent = true;
+            StartCoroutine(AnimateGolden());
             break;
         }
     }
@@ -393,6 +409,7 @@ public class MissionControl : MonoBehaviour {
 
     // Affects the bomb based on mission rules
     private void Update() {
+        var solveCount = Bomb.GetSolvedModuleNames().Count;
         switch (mode) {
         case 1: // Dead End (Big)
             if (!bombSolved) {
@@ -481,7 +498,7 @@ public class MissionControl : MonoBehaviour {
                 // Bomb has 4+ strikes
                 if (actualStrikes >= JAM_STRIKE_LIMIT && !ZenModeActive && !TimeModeActive) {
                     Debug.LogFormat("[Mission Control #{0}] Strike limit reached! Detonating bomb.", moduleId);
-                    StartCoroutine(DetonateBomb());
+                    StartCoroutine(DetonateBomb(JAM_STRIKE_LIMIT));
                 }
 
                 else {
@@ -521,7 +538,6 @@ public class MissionControl : MonoBehaviour {
             break;
 
         case 8: // Flyer's Manual Curse / Flyer's Alterative Manual Curse
-            var solveCount = Bomb.GetSolvedModuleNames().Count;
             var toleratedStrikeLimit = solveCount / 5 + 1;
                 if (toleratedStrikeLimit < 8)
                     ButtonText.text = string.Format("{0} / {1}\n{2}", solveCount, toleratedStrikeLimit * 5, toleratedStrikeLimit.ToString("0x"));
@@ -532,6 +548,32 @@ public class MissionControl : MonoBehaviour {
                     Debug.LogFormat("[Mission Control #{0}] Say goodbye to that attempt. At {1}, you solved {2} module(s) and struck {3} time(s). This mission cannot tolerate that many strikes in this state.", moduleId, Bomb.GetFormattedTime(), Bomb.GetSolvedModuleNames().Count, Bomb.GetStrikes());
                     TimeRemaining.FromModule(Module, 0f);
                 }
+            break;
+
+        case 9: //The Mountain / The Mountain B-Side
+            if (solveCount == 1 && !goldenActive) {
+                Debug.Log(Bomb.GetSolvedModuleIDs()[0]);
+                if (Bomb.GetSolvedModuleIDs()[0] == "MissionControl") {
+                    goldenActive = true;
+                    TimeRemaining.FromModule(Module, Bomb.GetTime() + 3600f);
+                } else {
+                    goldenPresent = false;
+                    GoldenSlot.sprite = null;
+                    ButtonTransform.localEulerAngles = new Vector3(0f, 0f, 90f);
+                }
+            }
+            if (solveCount == 49 && goldenActive && goldenPresent) {
+                goldenPresent = false;
+                StartCoroutine(GoldenCollect());
+            }
+            if (Bomb.GetStrikes() > 0 && goldenActive) {
+                Debug.LogFormat("[Mission Control #{0}] Struck with the golden strawberry. Detonating bomb.", moduleId);
+                StartCoroutine(DetonateBomb(5));
+            }
+            if (Bomb.GetTime() < 3600f && goldenActive) {
+                Debug.LogFormat("[Mission Control #{0}] Ran out of time with the golden strawberry. Detonating bomb.", moduleId);
+                StartCoroutine(DetonateBomb(5));
+            }
             break;
         }
     }
@@ -599,8 +641,8 @@ public class MissionControl : MonoBehaviour {
     }
 
     // Strikes the bomb until it explodes
-    private IEnumerator DetonateBomb() {
-        while (Bomb.GetStrikes() < JAM_STRIKE_LIMIT) {
+    private IEnumerator DetonateBomb(int n) {
+        while (Bomb.GetStrikes() < n) {
             Module.HandleStrike();
             yield return new WaitForSeconds(0.02f);
         }
@@ -678,6 +720,36 @@ public class MissionControl : MonoBehaviour {
         yield return null;
     }
 
+    //Animates the golden strawberry for The Mountain
+    private IEnumerator AnimateGolden() {
+        int goldenFrame = 0;
+        while (goldenPresent) {
+            yield return new WaitForSeconds(0.066f);
+            goldenFrame = (goldenFrame + 1) % 6;
+            GoldenSlot.sprite = GoldenSprites[goldenFrame];
+            GoldenSlot.transform.localPosition = new Vector3(0f, 0.03f, (float)Math.Sin(Bomb.GetTime()%6.2831853f)*0.005f - 0.0025f);
+            yield return null;
+        }
+    }
+
+    private IEnumerator GoldenCollect() {
+        for (int g = 6; g < 20; g++) {
+            yield return new WaitForSeconds(g != 15 ? 0.09f : 0.6f);
+            GoldenSlot.sprite = GoldenSprites[g];
+            if (g == 13) { StartCoroutine(GoldenFlash()); }
+            yield return null;
+        }
+        GoldenSlot.sprite = null;
+    }
+
+    private IEnumerator GoldenFlash() {
+        bool flashBool = false;
+        while (true) {
+            flashBool = !flashBool;
+            GoldenSlot.color = new Color(1f, flashBool ? 1f : 0.69f, 0.69f);
+            yield return new WaitForSeconds(0.06f);
+        }
+    }
 
     // Changes the color of the button and border
     private IEnumerator ChangeBorderColor(bool direction) {
@@ -1115,6 +1187,10 @@ public class MissionControl : MonoBehaviour {
             Audio.PlaySoundAtTransform("missionControl_edgeworkRead", transform);
             Debug.LogFormat("[Mission Control #{0}] You pressed the button. Reading the edgework number now.", moduleId);
             StartCoroutine(ReadEdgework());
+        }
+
+        else if (mode == 9) {
+            Solve();
         }
 
         // Unmodified rules
