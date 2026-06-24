@@ -2,10 +2,14 @@
 using System.Linq;
 
 /// Author: Espik, Commissioner: Danielstigman
-internal class FatherOfTheAbyssHandler {
+internal class FatherOfTheAbyssHandler : Handler {
     private float abyssTime = 12000.0f;
 
-    internal IEnumerator ProcessTheFatherOfTheAbyss(MissionControl comp) {
+    internal FatherOfTheAbyssHandler(MissionControl comp) {
+        this.comp = comp;
+    }
+
+    internal IEnumerator ProcessTheFatherOfTheAbyss() {
         abyssTime = comp.Bomb.GetTime();
 
         while (!comp.activated)

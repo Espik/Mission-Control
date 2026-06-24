@@ -118,6 +118,7 @@ public class MissionControl : MonoBehaviour {
     private void Start() {
         StartCoroutine(AnimateButton());
         mission = GetMission();
+        InitHandlers();
         Debug.LogFormat("<Mission Control #{0}> Mission: {1}", moduleId, mission);
 
         switch (mission) {
@@ -131,10 +132,10 @@ public class MissionControl : MonoBehaviour {
                 mode = Bomb.GetSolvableModuleNames().Count() == 1 ? 2 : 1;
 
                 if (mode == 1)
-                    StartCoroutine(DeadEnd.ProcessDeadEndLarge(this));
+                    StartCoroutine(DeadEnd.ProcessDeadEndLarge());
 
                 if (mode == 2)
-                    StartCoroutine(DeadEnd.ProcessDeadEndSmall(this));
+                    StartCoroutine(DeadEnd.ProcessDeadEndSmall());
 
                 break;
 
@@ -142,42 +143,42 @@ public class MissionControl : MonoBehaviour {
                 Debug.LogFormat("[Mission Control #{0}] Found mission: \"Disconnected\".", moduleId);
                 missionFound = true;
                 mode = 3;
-                StartCoroutine(Disconnected.ProcessDisconnected(this));
+                StartCoroutine(Disconnected.ProcessDisconnected());
                 break;
 
             case "mod_ktane_EspikHardMissions_wish": // Wish
                 Debug.LogFormat("[Mission Control #{0}] Found mission: \"Wish\".", moduleId);
                 missionFound = true;
                 mode = 4;
-                StartCoroutine(Wish.ProcessWish(this));
+                StartCoroutine(Wish.ProcessWish());
                 break;
 
             case "mod_jamMissions_Espik": // Precise Instability
                 Debug.LogFormat("[Mission Control #{0}] Found mission: \"Precise Instability\".", moduleId);
                 missionFound = true;
                 mode = 5;
-                StartCoroutine(PreciseInstability.ProcessPreciseInstability(this));
+                StartCoroutine(PreciseInstability.ProcessPreciseInstability());
                 break;
 
             case "mod_blindfoldMissions_blindBomb": // For No Eyes Only
                 Debug.LogFormat("[Mission Control #{0}] Found mission: \"For No Eyes Only\".", moduleId);
                 missionFound = true;
                 mode = 6;
-                StartCoroutine(ForNoEyesOnly.ProcessForNoEyesOnly(this, true));
+                StartCoroutine(ForNoEyesOnly.ProcessForNoEyesOnly(true));
                 break;
 
             case "mod_blindfoldMissions_blindBombTest": // For No Eyes Only [Practice]
                 Debug.LogFormat("[Mission Control #{0}] Found mission: \"For No Eyes Only [Practice]\".", moduleId);
                 missionFound = true;
                 mode = 6;
-                StartCoroutine(ForNoEyesOnly.ProcessForNoEyesOnly(this, false));
+                StartCoroutine(ForNoEyesOnly.ProcessForNoEyesOnly(false));
                 break;
 
             case "mod_missionpack_VFlyer_missionTimeConstraint": // Lost To Time
                 Debug.LogFormat("[Mission Control #{0}] Found mission: \"Lost To Time\".", moduleId);
                 missionFound = true;
                 mode = 7;
-                StartCoroutine(LostToTime.ProcessLostToTime(this));
+                StartCoroutine(LostToTime.ProcessLostToTime());
                 break;
 
             case "mod_missionpack_VFlyer_missionModuleCorruption": // Flyer's Manual Curse
@@ -185,14 +186,14 @@ public class MissionControl : MonoBehaviour {
                 Debug.LogFormat("[Mission Control #{0}] Found mission: \"Flyer's Manual Curse\". Mission ran can be an ALT version.", moduleId);
                 missionFound = true;
                 mode = 8;
-                StartCoroutine(FlyersManualCurse.ProcessFlyersManualCurse(this));
+                StartCoroutine(FlyersManualCurse.ProcessFlyersManualCurse());
                 break;
 
             case "mod_DansPissionMack_redacted": // The Father of the Abyss
                 Debug.LogFormat("[Mission Control #{0}] Found mission: \"The Father of the Abyss\".", moduleId);
                 missionFound = true;
                 mode = 9;
-                StartCoroutine(TheFatherOfTheAbyss.ProcessTheFatherOfTheAbyss(this));
+                StartCoroutine(TheFatherOfTheAbyss.ProcessTheFatherOfTheAbyss());
                 break;
 
             case "mod_theBombsBlanMade_mountain": //The Mountain
@@ -200,21 +201,21 @@ public class MissionControl : MonoBehaviour {
                 Debug.LogFormat("[Mission Control #{0}] Found mission: \"The Mountain{1}\".", moduleId, mission.Contains("Bside") ? " B-Side" : "");
                 missionFound = true;
                 mode = 10;
-                StartCoroutine(TheMountain.ProcessTheMountain(this));
+                StartCoroutine(TheMountain.ProcessTheMountain());
                 break;
 
             case "mod_eXishMissions_cmdprompt": // Command Prompt
                 Debug.LogFormat("[Mission Control #{0}] Found mission: \"Command Prompt\".", moduleId);
                 missionFound = true;
                 mode = 11;
-                StartCoroutine(CommandPrompt.ProcessCommandPrompt(this));
+                StartCoroutine(CommandPrompt.ProcessCommandPrompt());
                 break;
 
             case "mod_espikStellarMissions_defrost": // Defrost
                 Debug.LogFormat("[Mission Control #{0}] Found mission: \"Defrost\".", moduleId);
                 missionFound = true;
                 mode = 12;
-                StartCoroutine(Defrost.ProcessDefrost(this));
+                StartCoroutine(Defrost.ProcessDefrost());
                 break;
         }
     }
@@ -277,6 +278,21 @@ public class MissionControl : MonoBehaviour {
         }
     }
 
+    // Initializes the handlers
+    private void InitHandlers() {
+        DeadEnd = new DeadEndHandler(this);
+        Disconnected = new DisconnectedHandler(this);
+        Wish = new WishHandler(this);
+        PreciseInstability = new PreciseInstabilityHandler(this);
+        ForNoEyesOnly = new ForNoEyesOnlyHandler(this);
+        LostToTime = new LostToTimeHandler(this);
+        FlyersManualCurse = new FlyersManualCurseHandler(this);
+        TheFatherOfTheAbyss = new FatherOfTheAbyssHandler(this);
+        TheMountain = new MountainHandler(this);
+        CommandPrompt = new CommandPromptHandler(this);
+        Defrost = new DefrostHandler(this);
+    }
+
     // Rotates the button so the texture animates
     private IEnumerator AnimateButton() {
         while (true) {
@@ -301,6 +317,7 @@ public class MissionControl : MonoBehaviour {
                 StrikeModule();
         }
     }
+
 
     /// <summary>
     /// Helper functions for handlers

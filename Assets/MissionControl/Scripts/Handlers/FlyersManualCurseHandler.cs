@@ -2,11 +2,15 @@
 using UnityEngine;
 
 /// Author: VFlyer
-internal class FlyersManualCurseHandler {
+internal class FlyersManualCurseHandler : Handler {
     private int solveCount;
     private int toleratedStrikeLimit;
 
-    internal IEnumerator ProcessFlyersManualCurse(MissionControl comp) {
+    internal FlyersManualCurseHandler(MissionControl comp) {
+        this.comp = comp;
+    }
+
+    internal IEnumerator ProcessFlyersManualCurse() {
         while (!comp.activated)
             yield return null;
 

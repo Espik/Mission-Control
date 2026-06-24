@@ -4,16 +4,16 @@ using System.Linq;
 using UnityEngine;
 
 /// Author: Blananas2
-internal class MountainHandler {
+internal class MountainHandler : Handler {
     private bool goldenPresent = false;
     private bool goldenActive = false;
     private int solveCount;
 
-    private MissionControl comp;
-
-    internal IEnumerator ProcessTheMountain(MissionControl comp) {
+    internal MountainHandler(MissionControl comp) {
         this.comp = comp;
+    }
 
+    internal IEnumerator ProcessTheMountain() {
         comp.ButtonTransform.localEulerAngles = new Vector3(0f, 0f, 270f);
         goldenPresent = true;
         comp.StartCoroutine(AnimateGolden());

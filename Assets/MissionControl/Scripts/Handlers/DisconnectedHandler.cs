@@ -3,11 +3,15 @@ using System.Linq;
 using UnityEngine;
 
 /// Author: Espik
-internal class DisconnectedHandler {
+internal class DisconnectedHandler : Handler {
     private float currentSecond = 0.0f;
     private float strikeModifier = 20.0f;
 
-    internal IEnumerator ProcessDisconnected(MissionControl comp) {
+    internal DisconnectedHandler(MissionControl comp) {
+        this.comp = comp;
+    }
+
+    internal IEnumerator ProcessDisconnected() {
         while (comp.Bomb.GetSolvedModuleNames().Count() < 53)
             yield return null;
 

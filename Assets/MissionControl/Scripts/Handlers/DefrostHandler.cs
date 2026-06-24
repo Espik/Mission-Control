@@ -4,7 +4,7 @@ using System.Linq;
 using UnityEngine;
 
 /// Author: Espik
-internal class DefrostHandler {
+internal class DefrostHandler : Handler {
     private float currentSecond = 0.0f;
     private float[] timerPercents = { 0.2f, 0.1f, 0.1f, 0.1f, 0.05f, 0.05f, 0.1f, 0.1f, 0.1f, 0.05f };
     private int defrostStage = 0;
@@ -16,11 +16,11 @@ internal class DefrostHandler {
                                   { 0.0f, 9.75f, 7.034f, 5.605f, 4.125f, 3.3026f, 53.0f / 18.0f, 303.0f / 128.0f, 47.0f / 22.0f, 1.875f, 1.875f},
                                   { 0.0f, 3.0f, 31.0f / 11.0f, 8.0f / 3.0f, 17.0f / 7.0f, 2.25f, 19.0f / 9.0f, 21.0f / 11.0f, 23.0f / 13.0f, 5.0f / 3.0f, 5.0f / 3.0f} };
 
-    private MissionControl comp;
-
-    internal IEnumerator ProcessDefrost(MissionControl comp) {
+    internal DefrostHandler(MissionControl comp) {
         this.comp = comp;
+    }
 
+    internal IEnumerator ProcessDefrost() {
         maxTime = comp.Bomb.GetTime();
         comp.ModuleButton.material = comp.StageButtonMaterials[0];
         comp.ModuleBorder.material = comp.StageBorderMaterials[0];

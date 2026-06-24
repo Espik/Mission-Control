@@ -3,7 +3,7 @@ using System.Linq;
 using UnityEngine;
 
 /// Author: Espik
-internal class WishHandler {
+internal class WishHandler : Handler {
     internal readonly int[] WISH_THRESHOLDS = { 13, 26, 33, 41, 49, 59, 65, 71, 78, 83, 88, 93 };
     private readonly string[] WISH_MODULES = { "notX01", "deceptiveRainbowArrowsModule", "cube", "ChaoticCountdownModule", "whiteCipher",
         "blackCipher", "bamboozlingButton", "TripleTraversalModule", "rgbMaze", "perceptron" };
@@ -15,10 +15,11 @@ internal class WishHandler {
     private KMBombModule[] mystifiedModule = new KMBombModule[12];
     private Vector3[] mystifyScale = new Vector3[12];
 
-    private MissionControl comp;
-
-    internal IEnumerator ProcessWish(MissionControl comp) {
+    internal WishHandler(MissionControl comp) {
         this.comp = comp;
+    }
+
+    internal IEnumerator ProcessWish() {
         comp.StartCoroutine(HideWishModules());
 
         comp.ButtonSelectable.OnInteract = delegate () {

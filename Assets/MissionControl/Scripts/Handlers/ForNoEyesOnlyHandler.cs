@@ -4,14 +4,14 @@ using System.Linq;
 using UnityEngine;
 
 /// Author: Espik
-internal class ForNoEyesOnlyHandler {
+internal class ForNoEyesOnlyHandler : Handler {
     private const int BLINDMODS = 47; // 47
 
-    private MissionControl comp;
-
-    internal IEnumerator ProcessForNoEyesOnly(MissionControl comp, bool blackScreen) {
+    internal ForNoEyesOnlyHandler(MissionControl comp) {
         this.comp = comp;
+    }
 
+    internal IEnumerator ProcessForNoEyesOnly(bool blackScreen) {
         comp.ButtonSelectable.OnInteract = delegate () {
             ButtonPressed();
             return false;

@@ -3,13 +3,17 @@ using System.Linq;
 using UnityEngine;
 
 /// Author: Espik
-internal class DeadEndHandler {
+internal class DeadEndHandler : Handler {
     private static bool deadEndSolve = false;
     private const float DEADENDSTART = 12000.0f; // 12000
     private static float finishingTime = 55.0f;
     private float iteration = 0.0f;
 
-    internal IEnumerator ProcessDeadEndLarge(MissionControl comp) {
+    internal DeadEndHandler(MissionControl comp) {
+        this.comp = comp;
+    }
+
+    internal IEnumerator ProcessDeadEndLarge() {
         while (!comp.bombSolved) {
             // Increases the timer speed
             if (comp.ZenModeActive) {
@@ -43,7 +47,7 @@ internal class DeadEndHandler {
         }
     }
 
-    internal IEnumerator ProcessDeadEndSmall(MissionControl comp) {
+    internal IEnumerator ProcessDeadEndSmall() {
         comp.canPressButton = false;
 
         while (!comp.bombSolved) {

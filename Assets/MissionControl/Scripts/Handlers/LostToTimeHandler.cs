@@ -4,9 +4,12 @@ using System.Linq;
 using UnityEngine;
 
 /// Author: VFlyer
-internal class LostToTimeHandler {
+internal class LostToTimeHandler : Handler {
+    internal LostToTimeHandler(MissionControl comp) {
+        this.comp = comp;
+    }
 
-    internal IEnumerator ProcessLostToTime(MissionControl comp) {
+    internal IEnumerator ProcessLostToTime() {
         while (!comp.activated)
             yield return null;
 

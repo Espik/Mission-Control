@@ -2,7 +2,7 @@
 using UnityEngine;
 
 /// Author: Espik
-internal class PreciseInstabilityHandler {
+internal class PreciseInstabilityHandler : Handler {
     private bool acceptingStrikes = false;
     private bool readyToChange = false;
     private int actualStrikes = 0;
@@ -29,10 +29,11 @@ internal class PreciseInstabilityHandler {
     private Vector3[] jamModuleScale = new Vector3[54];
     private Vector3 missionControlScale;
 
-    private MissionControl comp;
-
-    internal IEnumerator ProcessPreciseInstability(MissionControl comp) {
+    internal PreciseInstabilityHandler(MissionControl comp) {
         this.comp = comp;
+    }
+
+    internal IEnumerator ProcessPreciseInstability() {
         comp.StartCoroutine(HideJamModules());
         storedNumber = UnityEngine.Random.Range(1, 21);
 

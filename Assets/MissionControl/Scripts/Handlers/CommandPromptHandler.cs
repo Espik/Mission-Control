@@ -8,7 +8,7 @@ using UnityEngine.UI;
 using UnityEngine.Windows.Speech;
 
 /// Author: eXish
-public class CommandPromptHandler {
+internal class CommandPromptHandler : Handler {
     public GameObject fakeCubeSel;
     public GameObject processingLED;
     public GameObject textBacking;
@@ -120,11 +120,11 @@ public class CommandPromptHandler {
     private string[] reservedWordsReplacements = { " - ", " . ", " + ", " - ", " 0 ", " 1 ", " 2 ", " 3 ", " 4 ", " 5 ", " 6 ", " 7 ", " 8 ", " 9 ", "", " " };
     private bool processingCmd;
 
-    private MissionControl comp;
-
-    internal IEnumerator ProcessCommandPrompt(MissionControl comp) {
+    internal CommandPromptHandler(MissionControl comp) {
         this.comp = comp;
+    }
 
+    internal IEnumerator ProcessCommandPrompt() {
         while (!comp.activated)
             yield return null;
 
