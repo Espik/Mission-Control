@@ -4,17 +4,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.Windows.Speech;
 
 /// Author: eXish
 internal class CommandPromptHandler : Handler {
-    public GameObject fakeCubeSel;
-    public GameObject processingLED;
-    public GameObject textBacking;
-    public Image textBackingImg;
-    public Text overlayText;
-    public Color textBackingColor;
     private DictationRecognizer dictationRecognizer;
     private Dictionary<string, string> modIDToScript = new Dictionary<string, string>()
     {
@@ -132,14 +125,14 @@ internal class CommandPromptHandler : Handler {
 
         while (true) {
             if (processingCmd)
-                processingLED.SetActive(true);
+                comp.processingLED.SetActive(true);
             else
-                processingLED.SetActive(false);
-            if (overlayText.text != "")
-                textBacking.SetActive(true);
+                comp.processingLED.SetActive(false);
+            if (comp.overlayText.text != "")
+                comp.textBacking.SetActive(true);
             else {
-                textBacking.SetActive(false);
-                textBackingImg.color = textBackingColor;
+                comp.textBacking.SetActive(false);
+                comp.textBackingImg.color = comp.textBackingColor;
             }
 
             yield return null;
@@ -152,7 +145,7 @@ internal class CommandPromptHandler : Handler {
             Transform componentTransform = comp.transform.parent.GetChild(i);
             KMBombModule bombModule = componentTransform.GetComponent<KMBombModule>();
             if (bombModule != null) {
-                GameObject cube = GameObject.Instantiate(fakeCubeSel, componentTransform);
+                GameObject cube = GameObject.Instantiate(comp.fakeCubeSel, componentTransform);
                 cube.transform.localPosition = componentTransform.localPosition;
                 cube.transform.localEulerAngles = componentTransform.localEulerAngles;
                 KMSelectable modSel = componentTransform.GetComponent<KMSelectable>();
@@ -270,8 +263,8 @@ internal class CommandPromptHandler : Handler {
             }
             if (displayText != null) {
                 comp.StopCoroutine(displayText);
-                overlayText.color = Color.green;
-                textBackingImg.color = textBackingColor;
+                comp.overlayText.color = Color.green;
+                comp.textBackingImg.color = comp.textBackingColor;
             }
             displayText = comp.StartCoroutine(DisplayCmdPromptText(text));
         }
@@ -366,17 +359,17 @@ internal class CommandPromptHandler : Handler {
 
     // Displays command text on the user's screen temporarily
     private IEnumerator DisplayCmdPromptText(string text) {
-        overlayText.text = text;
+        comp.overlayText.text = text;
         yield return new WaitForSeconds(5f);
         float t = 0f;
         while (t < 1f) {
             t += Time.deltaTime;
-            overlayText.color = Color.Lerp(Color.green, Color.clear, t);
-            textBackingImg.color = Color.Lerp(textBackingColor, Color.clear, t);
+            comp.overlayText.color = Color.Lerp(Color.green, Color.clear, t);
+            comp.textBackingImg.color = Color.Lerp(comp.textBackingColor, Color.clear, t);
             yield return null;
         }
-        overlayText.text = "";
-        overlayText.color = Color.green;
+        comp.overlayText.text = "";
+        comp.overlayText.color = Color.green;
         displayText = null;
     }
 }

@@ -1,5 +1,10 @@
-﻿using System.Collections;
+﻿using KModkit;
+using System;
+using System.Collections;
+using System.Linq;
+using System.Reflection;
 using UnityEngine;
+using UnityEngine.Experimental.UIElements;
 
 /// Author: Espik
 internal class PreciseInstabilityHandler : Handler {
@@ -325,6 +330,17 @@ internal class PreciseInstabilityHandler : Handler {
 
         else if (franticMode) {
             Debug.LogFormat("[Mission Control #{0}] You pressed the button again during the countdown. Only the first press is registered.", comp.moduleId);
+        }
+
+        else if (comp.canPressButton && !comp.moduleSolved) {
+            comp.Audio.PlaySoundAtTransform("missionControl_buttonPress", comp.transform);
+            Debug.LogFormat("[Mission Control #{0}] Button pressed at {1}.", comp.moduleId, comp.Bomb.GetFormattedTime());
+
+            if (comp.Bomb.GetSerialNumberNumbers().Sum() == Math.Floor(comp.Bomb.GetTime()) % 60)
+                comp.SolveModule();
+
+            else
+                comp.StrikeModule();
         }
     }
 }

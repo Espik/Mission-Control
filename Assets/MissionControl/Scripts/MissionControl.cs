@@ -6,6 +6,7 @@ using UnityEngine;
 using KModkit;
 using System.Text.RegularExpressions;
 using Wawa.DDL;
+using UnityEngine.UI;
 
 public class MissionControl : MonoBehaviour {
     public KMAudio Audio;
@@ -31,6 +32,13 @@ public class MissionControl : MonoBehaviour {
 
     public SpriteRenderer GoldenSlot;
     public Sprite[] GoldenSprites;
+
+    public GameObject fakeCubeSel;
+    public GameObject processingLED;
+    public GameObject textBacking;
+    public Image textBackingImg;
+    public Text overlayText;
+    public Color textBackingColor;
 
     public Material[] StageBorderMaterials;
     public Material[] StageButtonMaterials;
@@ -482,7 +490,7 @@ public class MissionControl : MonoBehaviour {
     }
 
     // Adds a strike
-    private void StrikeModule() {
+    internal void StrikeModule() {
         Debug.LogFormat("[Mission Control #{0}] Strike!", moduleId);
         Module.HandleStrike();
     }
